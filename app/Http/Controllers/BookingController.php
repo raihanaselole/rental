@@ -17,6 +17,12 @@ class BookingController extends Controller
     */
     public function index()
     {
+        // JIKA ADMIN
+        if (Auth::user()->role == 'admin') {
+            return redirect()->route('admin.booking');
+        }
+
+        // USER BIASA
         $bookings = Booking::where('user_id', Auth::id())
                     ->latest()
                     ->get();
@@ -159,6 +165,11 @@ class BookingController extends Controller
     */
     public function admin()
     {
+        // CEK ADMIN
+        if (Auth::user()->role != 'admin') {
+            abort(403);
+        }
+
         $bookings = Booking::latest()->get();
 
         return view('admin.booking', compact('bookings'));
