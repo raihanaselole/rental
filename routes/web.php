@@ -34,6 +34,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/booking', [BookingController::class, 'admin'])->name('admin.booking');
     Route::get('/admin/booking/approve/{id}', [BookingController::class, 'approve']);
     Route::get('/admin/booking/reject/{id}', [BookingController::class, 'reject']);
+    Route::get('/booking', [BookingController::class, 'admin'])->name('admin.booking');
 });
 
 

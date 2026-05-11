@@ -12,7 +12,6 @@
                 <th>Nama</th>
                 <th>No HP</th> {{-- TAMBAHAN --}}
                 <th>Mobil</th>
-                <th>Bukti DP</th>
                 <th>Status</th>
                 <th>Aksi</th>
             </tr>
@@ -25,9 +24,7 @@
             <td>{{ $b->phone }}</td> {{-- TAMBAHAN --}}
             <td>{{ $b->car_name }}</td>
 
-            <td>
-                <img src="{{ asset('storage/'.$b->dp_proof) }}" width="100" style="border-radius:8px;">
-            </td>
+
 
             <td>
                 @if($b->status == 'pending')
