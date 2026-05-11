@@ -20,6 +20,7 @@ class Booking extends Model
         'booking_date',
         'order_date',
         'dp_proof',
-        'status'
+        'status',
+        'snap_token'
     ];
 }

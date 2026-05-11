@@ -27,6 +27,7 @@ Route::view('/contact', 'users.contact')->name('contact');
 Route::middleware(['auth'])->group(function () {
     Route::get('/booking', [BookingController::class, 'index'])->name('booking');
     Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
+    Route::post('/midtrans/callback', [BookingController::class, 'callback']);
 });
 
 Route::middleware(['auth'])->group(function () {

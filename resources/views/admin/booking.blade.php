@@ -4,35 +4,48 @@
 
 <div class="container pt-5 mt-5">
 
-    <h3>Admin Booking</h3>
+    <h3 class="mb-4">Admin Booking</h3>
 
-    <table class="table">
-        <tr>
-            <th>Nama</th>
-            <th>Mobil</th>
-            <th>Bukti</th>
-            <th>Status</th>
-            <th>Aksi</th>
-        </tr>
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Nama</th>
+                <th>No HP</th> {{-- TAMBAHAN --}}
+                <th>Mobil</th>
+                <th>Bukti DP</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
 
+        <tbody>
         @foreach($bookings as $b)
         <tr>
-        <td>{{ $b->name }}</td>
-        <td>{{ $b->car_name }}</td>
+            <td>{{ $b->name }}</td>
+            <td>{{ $b->phone }}</td> {{-- TAMBAHAN --}}
+            <td>{{ $b->car_name }}</td>
 
-        <td>
-        <img src="{{ asset('storage/'.$b->dp_proof) }}" width="100">
-        </td>
+            <td>
+                <img src="{{ asset('storage/'.$b->dp_proof) }}" width="100" style="border-radius:8px;">
+            </td>
 
-        <td>{{ $b->status }}</td>
+            <td>
+                @if($b->status == 'pending')
+                    <span class="badge badge-warning">Pending</span>
+                @elseif($b->status == 'approved')
+                    <span class="badge badge-success">ACC</span>
+                @else
+                    <span class="badge badge-danger">Ditolak</span>
+                @endif
+            </td>
 
-        <td>
-        <a href="/admin/booking/approve/{{ $b->id }}" class="btn btn-success btn-sm">ACC</a>
-        <a href="/admin/booking/reject/{{ $b->id }}" class="btn btn-danger btn-sm">Tolak</a>
-        </td>
-
+            <td>
+                <a href="/admin/booking/approve/{{ $b->id }}" class="btn btn-success btn-sm">ACC</a>
+                <a href="/admin/booking/reject/{{ $b->id }}" class="btn btn-danger btn-sm">Tolak</a>
+            </td>
         </tr>
         @endforeach
+        </tbody>
 
     </table>
 

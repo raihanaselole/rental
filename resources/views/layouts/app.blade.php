@@ -22,6 +22,10 @@
         <link rel="stylesheet" href="{{ asset('users/css/flaticon.css') }}">
         <link rel="stylesheet" href="{{ asset('users/css/icomoon.css') }}">
         <link rel="stylesheet" href="{{ asset('users/css/style.css') }}">
+        <script 
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="{{ config('midtrans.clientKey') }}">
+        </script>
 
     </head>
     <body class="font-sans antialiased">
