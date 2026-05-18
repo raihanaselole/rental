@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-
 class Booking extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+
         'user_id',
         'name',
         'age',
@@ -20,7 +20,16 @@ class Booking extends Model
         'booking_date',
         'order_date',
         'dp_proof',
+
+        // BOOKING STATUS
         'status',
-        'snap_token'
+
+        // MIDTRANS
+        'snap_token',
+        'payment_status',
+        'payment_type',
+        'transaction_id',
+        'paid_at'
+
     ];
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Booking;
+use App\Models\Car;
 use Illuminate\Support\Facades\Auth;
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -22,12 +23,15 @@ class BookingController extends Controller
             return redirect()->route('admin.booking');
         }
 
-        // USER BIASA
+        // BOOKING USER
         $bookings = Booking::where('user_id', Auth::id())
                     ->latest()
                     ->get();
 
-        return view('users.booking', compact('bookings'));
+        // AMBIL MOBIL DARI DATABASE
+        $cars = Car::latest()->get();
+
+        return view('users.booking', compact('bookings', 'cars'));
     }
 
     /*
@@ -72,16 +76,27 @@ class BookingController extends Controller
             ]);
 
             // MIDTRANS PARAMS
+            $orderId = 'BOOKING-'.$booking->id.'-'.time();
+
             $params = [
 
                 'transaction_details' => [
-                    'order_id' => 'BOOKING-'.$booking->id.'-'.time(),
+
+                    'order_id' => $orderId,
+
+                    // NOMINAL DP
                     'gross_amount' => 100000
                 ],
 
                 'customer_details' => [
+
                     'first_name' => $request->name,
+
                     'phone' => $request->phone,
+                ],
+
+                'callbacks' => [
+                    'finish' => url('/booking')
                 ]
 
             ];
@@ -97,7 +112,8 @@ class BookingController extends Controller
             // RETURN JSON
             return response()->json([
                 'success' => true,
-                'snap_token' => $snapToken
+                'snap_token' => $snapToken,
+                'booking_id' => $booking->id
             ]);
 
         } catch (\Exception $e) {
@@ -119,36 +135,55 @@ class BookingController extends Controller
     {
         $orderId = $request->order_id;
 
-        $id = str_replace('BOOKING-', '', $orderId);
+        $explode = explode('-', $orderId);
 
-        $booking = Booking::find($id);
+        $bookingId = $explode[1];
+
+        $booking = Booking::find($bookingId);
 
         if (!$booking) {
+
             return response()->json([
                 'message' => 'Booking tidak ditemukan'
             ], 404);
+
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | STATUS PAYMENT
-        |--------------------------------------------------------------------------
-        */
+        // PAYMENT BERHASIL
         if ($request->transaction_status == 'settlement') {
 
-            $booking->status = 'approved';
+            // STATUS BOOKING TETAP PENDING
+            $booking->status = 'pending';
 
-        } elseif (
+            // PAYMENT AUTO
+            $booking->payment_status = 'paid';
+
+            $booking->payment_type = $request->payment_type;
+
+            $booking->transaction_id = $request->transaction_id;
+
+            $booking->paid_at = now();
+
+        }
+
+        // PAYMENT GAGAL
+        elseif (
+
             $request->transaction_status == 'expire' ||
             $request->transaction_status == 'cancel' ||
             $request->transaction_status == 'deny'
+
         ) {
 
-            $booking->status = 'rejected';
+            $booking->payment_status = 'failed';
 
-        } else {
+        }
 
-            $booking->status = 'pending';
+        // MENUNGGU PAYMENT
+        else {
+
+            $booking->payment_status = 'pending';
+
         }
 
         $booking->save();
@@ -202,4 +237,12 @@ class BookingController extends Controller
 
         return back()->with('success', 'Booking berhasil ditolak');
     }
+
+    public function show($id)
+    {
+        $booking = Booking::findOrFail($id);
+
+        return view('admin.booking-detail', compact('booking'));
+    }
+
 }

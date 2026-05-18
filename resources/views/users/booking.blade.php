@@ -24,12 +24,13 @@
                         </div>
                     @endif
 
-                    <form id="booking-form" enctype="multipart/form-data">
+                    <form id="booking-form">
                         @csrf
 
                         {{-- Nama --}}
                         <div class="form-group">
                             <label><b>Nama Lengkap</b></label>
+
                             <input type="text" 
                                    name="name" 
                                    class="form-control" 
@@ -40,6 +41,7 @@
                         {{-- Umur --}}
                         <div class="form-group">
                             <label><b>Umur</b></label>
+
                             <input type="number" 
                                    name="age" 
                                    class="form-control" 
@@ -50,6 +52,7 @@
                         {{-- No HP --}}
                         <div class="form-group">
                             <label><b>No Handphone</b></label>
+
                             <input type="text" 
                                    name="phone" 
                                    class="form-control" 
@@ -67,8 +70,14 @@
                                     required>
 
                                 <option value="">-- Pilih Jenis Mobil --</option>
-                                <option value="Bensin">Mobil Bensin</option>
-                                <option value="Listrik">Mobil Listrik</option>
+
+                                <option value="Bensin">
+                                    Mobil Bensin
+                                </option>
+
+                                <option value="Listrik">
+                                    Mobil Listrik
+                                </option>
 
                             </select>
                         </div>
@@ -82,7 +91,21 @@
                                     class="form-control"
                                     required>
 
-                                <option value="">-- Pilih Mobil --</option>
+                                <option value="">
+                                    -- Pilih Mobil --
+                                </option>
+
+                                @foreach($cars as $car)
+
+                                    <option
+                                        value="{{ $car->name }}"
+                                        data-type="{{ $car->type }}">
+
+                                        {{ $car->name }} - {{ $car->type }}
+
+                                    </option>
+
+                                @endforeach
 
                             </select>
                         </div>
@@ -90,6 +113,7 @@
                         {{-- Tanggal --}}
                         <div class="form-group">
                             <label><b>Tanggal Booking</b></label>
+
                             <input type="date" 
                                    name="booking_date" 
                                    class="form-control"
@@ -98,14 +122,18 @@
 
                         <div class="form-group">
                             <label><b>Tanggal Pemesanan</b></label>
+
                             <input type="date" 
                                    name="order_date" 
                                    class="form-control"
                                    required>
                         </div>
 
-                        <button type="submit" class="btn btn-success btn-block py-2">
+                        <button type="submit" 
+                                class="btn btn-success btn-block py-2">
+
                             Booking & Bayar Sekarang
+
                         </button>
 
                     </form>
@@ -133,8 +161,38 @@
                     </ul>
 
                     <div class="alert alert-warning mt-4">
-                        <b>Catatan:</b><br>
-                        Setelah pembayaran berhasil, status booking akan berubah otomatis menjadi <b>Pending</b> dan menunggu konfirmasi admin.
+
+                        <h6 class="font-weight-bold mb-2">
+                            Catatan Booking
+                        </h6>
+
+                        <ul class="mb-0 pl-3">
+
+                            <li>
+                                Setelah pembayaran berhasil, status booking akan menjadi 
+                                <b>Pending</b> dan menunggu konfirmasi admin.
+                            </li>
+
+                            <li class="mt-2">
+                                DP yang dibayarkan sebesar 
+                                <b>Rp 100.000</b>.
+                            </li>
+
+                            <li class="mt-2">
+                                Jika ingin melakukan pembatalan booking, silakan hubungi admin melalui WhatsApp:
+                                <br>
+
+                                <a href="https://wa.me/6285103754664?text=Halo%20saya%20ingin%20bertanya"
+                                target="_blank"
+                                class="btn btn-success btn-sm mt-2">
+
+                                Hubungi Admin WhatsApp
+
+                                </a>
+                            </li>
+
+                        </ul>
+
                     </div>
 
                 </div>
@@ -157,17 +215,20 @@
                 <table class="table table-bordered text-center">
 
                     <thead class="thead-dark">
+
                         <tr>
                             <th>Nama</th>
                             <th>Mobil</th>
                             <th>Tanggal</th>
                             <th>Status</th>
                         </tr>
+
                     </thead>
 
                     <tbody>
 
                         @forelse($bookings as $b)
+
                         <tr>
 
                             <td>{{ $b->name }}</td>
@@ -179,24 +240,29 @@
                             <td>
 
                                 @if($b->status == 'pending')
+
                                     <span class="badge badge-warning px-3 py-2">
                                         Pending
                                     </span>
 
                                 @elseif($b->status == 'approved')
+
                                     <span class="badge badge-success px-3 py-2">
                                         Sukses
                                     </span>
 
                                 @else
+
                                     <span class="badge badge-danger px-3 py-2">
                                         Ditolak
                                     </span>
+
                                 @endif
 
                             </td>
 
                         </tr>
+
                         @empty
 
                         <tr>
@@ -226,58 +292,37 @@ data-client-key="{{ config('midtrans.clientKey') }}">
 </script>
 
 
-{{-- FILTER MOBIL --}}
+{{-- FILTER MOBIL DARI DATABASE --}}
 <script>
-
-const bensin = [
-    "Toyota Avanza",
-    "Daihatsu Xenia",
-    "Honda Brio",
-    "Toyota Rush",
-    "Mitsubishi Xpander",
-    "Suzuki Ertiga",
-    "Toyota Innova",
-    "Honda Mobilio",
-    "Nissan Livina",
-    "Toyota Fortuner"
-];
-
-const listrik = [
-    "Hyundai Ioniq 5",
-    "Wuling Air EV",
-    "Tesla Model 3"
-];
 
 document.getElementById('car_type').addEventListener('change', function(){
 
-    let type = this.value;
-    let carSelect = document.getElementById('car_name');
+    let selectedType = this.value;
 
-    carSelect.innerHTML = '<option value="">-- Pilih Mobil --</option>';
+    let options = document.querySelectorAll('#car_name option');
 
-    let cars = [];
+    options.forEach(option => {
 
-    if(type == 'Bensin'){
-        cars = bensin;
-    } else if(type == 'Listrik'){
-        cars = listrik;
-    }
+        if(option.value == ""){
+            option.style.display = 'block';
+            return;
+        }
 
-    cars.forEach(function(car){
+        if(option.dataset.type == selectedType){
 
-        let option = document.createElement('option');
+            option.style.display = 'block';
 
-        option.value = car;
-        option.innerText = car;
+        } else {
 
-        carSelect.appendChild(option);
+            option.style.display = 'none';
+
+        }
 
     });
 
 });
 
 </script>
-
 
 
 {{-- PAYMENT --}}
@@ -308,25 +353,47 @@ document.getElementById('booking-form').addEventListener('submit', async functio
 
         console.log(data);
 
-        // DEBUG
-        if(data.message){
-            alert(data.message);
-        }
-
         if(data.snap_token){
 
             snap.pay(data.snap_token, {
 
-                onSuccess: function(result){
+               onSuccess: async function(result){
 
-                    alert("Pembayaran berhasil!");
-                    location.reload();
+                console.log(result);
 
-                },
+                // KIRIM DATA PAYMENT KE LARAVEL
+                await fetch('/payment-success/' + data.booking_id, {
+
+                    method: 'POST',
+
+                    headers: {
+
+                        'Content-Type': 'application/json',
+
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+
+                    },
+
+                    body: JSON.stringify({
+
+                        payment_type: result.payment_type,
+
+                        transaction_id: result.transaction_id
+
+                    })
+
+                });
+
+                alert("Pembayaran berhasil!");
+
+                window.location.href = "/booking";
+
+            },
 
                 onPending: function(result){
 
                     alert("Menunggu pembayaran!");
+
                     location.reload();
 
                 },

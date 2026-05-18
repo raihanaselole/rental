@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 
@@ -14,6 +14,7 @@
                 <th>Mobil</th>
                 <th>Status</th>
                 <th>Aksi</th>
+                <th>Status Payment</th>
             </tr>
         </thead>
 
@@ -37,8 +38,43 @@
             </td>
 
             <td>
-                <a href="/admin/booking/approve/{{ $b->id }}" class="btn btn-success btn-sm">ACC</a>
-                <a href="/admin/booking/reject/{{ $b->id }}" class="btn btn-danger btn-sm">Tolak</a>
+                <a href="{{ route('admin.booking.show', $b->id) }}"
+                class="btn btn-info btn-sm">
+                Detail
+                </a>
+
+                <a href="/admin/booking/approve/{{ $b->id }}"
+                class="btn btn-success btn-sm">
+                ACC
+                </a>
+
+                <a href="/admin/booking/reject/{{ $b->id }}"
+                class="btn btn-danger btn-sm">
+                Tolak
+                </a>
+            </td>
+            <td>
+
+                @if($b->payment_status == 'paid')
+
+                    <span class="badge badge-success">
+                        Paid
+                    </span>
+
+                @elseif($b->payment_status == 'pending')
+
+                    <span class="badge badge-warning">
+                        Pending
+                    </span>
+
+                @else
+
+                    <span class="badge badge-danger">
+                        Failed
+                    </span>
+
+                @endif
+
             </td>
         </tr>
         @endforeach
